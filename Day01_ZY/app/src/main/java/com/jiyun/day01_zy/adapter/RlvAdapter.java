@@ -38,7 +38,8 @@ public class RlvAdapter extends RecyclerView.Adapter{
         VH vh = (VH)holder;
         vh.tv.setText(list.get(position).getWho());
         Glide.with(mContext).load(list.get(position).getUrl()).into(vh.iv);
-    }
+    } //d 
+
 
     @Override
     public int getItemCount() {
