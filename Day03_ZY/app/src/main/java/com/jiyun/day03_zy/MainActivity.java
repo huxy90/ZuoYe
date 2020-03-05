@@ -2,16 +2,24 @@ package com.jiyun.day03_zy;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.tabs.TabLayout;
+import com.jiyun.day03_zy.adapter.VPFrgmentAdapter;
 import com.jiyun.day03_zy.adapter.VpImageAdapter;
+import com.jiyun.day03_zy.ui.fragment.CartFragment;
+import com.jiyun.day03_zy.ui.fragment.MainPageFragment;
+import com.jiyun.day03_zy.ui.fragment.MeFragment;
+import com.jiyun.day03_zy.ui.fragment.SortFragment;
+import com.jiyun.day03_zy.ui.fragment.TopicFragment;
 
 import java.util.ArrayList;
 
@@ -21,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager mVp;
     private TabLayout mTabLayout;
     private ArrayList<String> mTitles;
+    private ArrayList<Fragment> mFragments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,72 +40,24 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         initTitles();
+        initFragments();
         mToolBar = (Toolbar) findViewById(R.id.toolBar);
         mVp = (ViewPager) findViewById(R.id.vp);
         mTabLayout = (TabLayout) findViewById(R.id.tabLayout);
 
         toolbar();
         vp();
-        tab();
-
-        //关联viewpager和TabLayout,需要他们联动
-        //viewpager翻页监听
-        mVp.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                //页面滑动回调
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                //页面选中回调
-                //让对应的tab选中
-                mTabLayout.getTabAt(position).select();
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                //页面滑动状态改名
-            }
-        });
-
-        //tab选中监听
-        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                //tab选中回调
-                //让viewpager翻到对应页面
-                int position = tab.getPosition();
-                //设置当前的条目
-                mVp.setCurrentItem(position);
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-                //tab取消选中
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-                //tab重复选中
-            }
-        });
-
-
+        //关联tablayout和viewpager
+        mTabLayout.setupWithViewPager(mVp);
+        for(int i =0; i < mFragments.size();i++){
+            TabLayout.Tab tab = mTabLayout.getTabAt(i);
+            tab.setCustomView(tabView(i));
+        }
     }
 
     private void vp() {
-        //类似轮播图的使用(view)
-        ArrayList<View> views = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            View inflate = LayoutInflater.from(this).inflate(R.layout.tab, null);
-            TextView tv = inflate.findViewById(R.id.tv);
-            tv.setText("页面:"+i);
-            views.add(inflate);
-        }
-        VpImageAdapter adapter = new VpImageAdapter(views);
+        VPFrgmentAdapter adapter = new VPFrgmentAdapter(getSupportFragmentManager(), mTitles, mFragments);
         mVp.setAdapter(adapter);
-        //配合Fragment使用
     }
 
     private void toolbar() {
@@ -104,13 +65,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(mToolBar);
     }
 
-    private void tab() {
-        mTabLayout.addTab(mTabLayout.newTab().setCustomView(tabView(0)));
-        mTabLayout.addTab(mTabLayout.newTab().setCustomView(tabView(1)));
-        mTabLayout.addTab(mTabLayout.newTab().setCustomView(tabView(2)));
-        mTabLayout.addTab(mTabLayout.newTab().setCustomView(tabView(3)));
-        mTabLayout.addTab(mTabLayout.newTab().setCustomView(tabView(4)));
-    }
 
     private void initTitles() {
         //ctrl+alt+f 变成员变量
@@ -123,6 +77,14 @@ public class MainActivity extends AppCompatActivity {
         mTitles.add(getResources().getString(R.string.cart));
         mTitles.add(getResources().getString(R.string.me));
 
+    }
+    private void initFragments() {
+        mFragments = new ArrayList<>();
+        mFragments.add(new MainPageFragment());
+        mFragments.add(new TopicFragment());
+        mFragments.add(new SortFragment());
+        mFragments.add(new CartFragment());
+        mFragments.add(new MeFragment());
     }
 
     //对外提供tab的view
@@ -151,4 +113,8 @@ public class MainActivity extends AppCompatActivity {
         return inflate;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
+    }
 }
